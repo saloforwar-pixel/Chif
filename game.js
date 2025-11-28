@@ -4,6 +4,14 @@ const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+// Начальное меню
+const menu = document.getElementById('menu');
+const startButton = document.getElementById('startButton');
+
+// Флаг для отслеживания начала игры
+let gameStarted = false;
+
+// Персонаж
 let player = {
     x: 100,
     y: canvas.height - 150,
@@ -19,6 +27,7 @@ let player = {
 };
 player.image.src = 'path_to_your_pixelated_chef_image.png'; // Путь к изображению пиксельного Чифа
 
+// Хлеб (замени на путь к изображению хлеба)
 let bread = {
     x: Math.random() * canvas.width,
     y: Math.random() * canvas.height - 100,
@@ -26,13 +35,21 @@ let bread = {
     height: 30,
     image: new Image()
 };
-bread.image.src = 'path_to_bread_image.png'; // Путь к изображению хлеба
+bread.image.src = 'path_to_bread_image.png';
 
 let keys = {
     left: false,
     right: false,
     up: false
 };
+
+startButton.addEventListener('click', startGame); // При нажатии на кнопку запускаем игру
+
+function startGame() {
+    gameStarted = true;
+    menu.style.display = 'none'; // Скрываем меню
+    gameLoop(); // Запускаем игровой цикл
+}
 
 document.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft') keys.left = true;
@@ -89,12 +106,12 @@ function checkCollision() {
 }
 
 function gameLoop() {
+    if (!gameStarted) return; // Если игра не началась, не запускаем игровой цикл
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     movePlayer();
     drawPlayer();
     drawBread();
     checkCollision();
-    requestAnimationFrame(gameLoop);
+    requestAnimationFrame(gameLoop); // Вызываем функцию gameLoop для следующего кадра
 }
-
-gameLoop();

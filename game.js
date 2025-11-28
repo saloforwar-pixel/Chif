@@ -11,7 +11,7 @@ const startButton = document.getElementById('startButton');
 // Флаг для отслеживания начала игры
 let gameStarted = false;
 
-// Персонаж
+// Персонаж (пиксельный Чиф)
 let player = {
     x: 100,
     y: canvas.height - 150,
@@ -25,7 +25,7 @@ let player = {
     grounded: false,
     image: new Image()
 };
-player.image.src = 'path_to_your_pixelated_chef_image.png'; // Путь к изображению пиксельного Чифа
+player.image.src = '/mnt/data/Чиф пиксель.jpg'; // Путь к пиксельному Чифу
 
 // Хлеб (замени на путь к изображению хлеба)
 let bread = {

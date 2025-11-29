@@ -18,12 +18,12 @@ let rightImage = new Image();
 leftImage.src = 'assets/Чиф1.png';  // Путь к первому изображению (для движения влево)
 rightImage.src = 'assets/Чиф2.png'; // Путь ко второму изображению (для движения вправо)
 
-// Персонаж
+// Персонаж (уменьшаем его размеры)
 let player = {
     x: 100,
     y: canvas.height - 150,
-    width: 50,
-    height: 50,
+    width: 40, // Уменьшаем персонажа
+    height: 40, // Уменьшаем персонажа
     speed: 5,
     dx: 0,
     dy: 0,
@@ -58,7 +58,7 @@ function startGame() {
 document.addEventListener('keydown', (e) => {
     if (e.key === 'a') keys.left = true; // Управление через A
     if (e.key === 'd') keys.right = true; // Управление через D
-    if (e.key === ' ' && player.grounded) {
+    if (e.key === 'w' && player.grounded) { // Прыжок через W
         keys.up = true;
         player.dy = player.jumpPower;
     }
@@ -67,7 +67,7 @@ document.addEventListener('keydown', (e) => {
 document.addEventListener('keyup', (e) => {
     if (e.key === 'a') keys.left = false;
     if (e.key === 'd') keys.right = false;
-    if (e.key === ' ') keys.up = false;
+    if (e.key === 'w') keys.up = false;
 });
 
 function movePlayer() {

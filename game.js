@@ -11,7 +11,7 @@ let platformImage = new Image(); // Загружаем изображение п
 
 leftImage.src = 'assets/Чиф1.png';  // Путь к изображению для движения влево
 rightImage.src = 'assets/Чиф2.png'; // Путь к изображению для движения вправо
-platformImage.src = '/mnt/data/Земля1.png'; // Путь к изображению платформы
+platformImage.src = 'assets/Земля1.png'; // Путь к изображению платформы
 
 // Персонаж
 let player = {
@@ -42,14 +42,21 @@ let keys = {
     up: false
 };
 
+let gameStarted = false;
+
+const menu = document.getElementById('menu');
+const startButton = document.getElementById('startButton');
+
 startButton.addEventListener('click', startGame); // При нажатии на кнопку запускаем игру
 
+// Функция, чтобы начать игру
 function startGame() {
     gameStarted = true;
     menu.style.display = 'none'; // Скрываем меню
     gameLoop(); // Запускаем игровой цикл
 }
 
+// Управление через клавиши
 document.addEventListener('keydown', (e) => {
     if (e.key === 'a') keys.left = true; // Управление через A
     if (e.key === 'd') keys.right = true; // Управление через D
@@ -69,18 +76,17 @@ document.addEventListener('keyup', (e) => {
 function movePlayer() {
     if (keys.left) {
         player.dx = -player.speed;
-        player.image = leftImage;  // Если двигаемся влево, показываем левое изображение
+        player.image = leftImage; 
     } else if (keys.right) {
         player.dx = player.speed;
-        player.image = rightImage; // Если двигаемся вправо, показываем правое изображение
+        player.image = rightImage; 
     } else {
-        player.dx = 0;  // Если стоим, не меняем изображение
+        player.dx = 0;  
     }
 
     player.x += player.dx;
     player.y += player.dy;
 
-    // Коллизия с платформами
     player.grounded = false;
     for (let p of platforms) {
         if (player.x + player.width > p.x && player.x < p.x + p.width &&
@@ -91,11 +97,9 @@ function movePlayer() {
         }
     }
 
-    // Если персонаж выходит за границы экрана
     if (player.x < 0) player.x = 0;
     if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
 
-    // Если игрок не на платформе, применять гравитацию
     if (!player.grounded) {
         player.dy += player.gravity;
     }
@@ -106,7 +110,7 @@ function drawPlayer() {
     ctx.drawImage(player.image, player.x, player.y, player.width, player.height);
 }
 
-// Рисуем платформы с использованием изображения
+// Рисуем платформы
 function drawPlatforms() {
     for (let p of platforms) {
         ctx.drawImage(platformImage, p.x, p.y, p.width, p.height); // Рисуем платформу с изображением
@@ -115,11 +119,11 @@ function drawPlatforms() {
 
 // Игровой цикл
 function gameLoop() {
-    if (!gameStarted) return; // Если игра не началась, не запускаем игровой цикл
+    if (!gameStarted) return;
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);  // Очистка экрана
-    movePlayer();   // Обновляем положение игрока
-    drawPlatforms(); // Рисуем платформы
-    drawPlayer();    // Рисуем персонажа
-    requestAnimationFrame(gameLoop); // Вызываем gameLoop для следующего кадра
+    ctx.clearRect(0, 0, canvas.width, canvas.height); 
+    movePlayer();   
+    drawPlatforms(); 
+    drawPlayer();    
+    requestAnimationFrame(gameLoop); 
 }

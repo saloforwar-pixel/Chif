@@ -4,33 +4,26 @@ const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// Начальное меню
-const menu = document.getElementById('menu');
-const startButton = document.getElementById('startButton');
-
-// Флаг для отслеживания начала игры
-let gameStarted = false;
-
-// Загрузка изображений для анимации (обновлено на .png)
+// Загрузка изображений для анимации
 let leftImage = new Image();
 let rightImage = new Image();
 
-leftImage.src = 'assets/Чиф1.png';  // Путь к первому изображению (для движения влево)
-rightImage.src = 'assets/Чиф2.png'; // Путь ко второму изображению (для движения вправо)
+leftImage.src = 'assets/Чиф1.png';  // Путь к изображению для движения влево
+rightImage.src = 'assets/Чиф2.png'; // Путь к изображению для движения вправо
 
-// Персонаж (уменьшаем его размеры)
+// Персонаж
 let player = {
     x: 100,
-    y: canvas.height - 150,
-    width: 40, // Уменьшаем персонажа
-    height: 40, // Уменьшаем персонажа
-    speed: 5,
-    dx: 0,
-    dy: 0,
-    gravity: 0.5,
-    jumpPower: -15,
-    grounded: false,
-    image: rightImage  // Начальное изображение — для движения вправо
+    y: canvas.height - 150,  // Спавним на первой платформе
+    width: 40,  // Ширина персонажа
+    height: 40,  // Высота персонажа
+    speed: 5,  // Скорость движения
+    dx: 0,  // Скорость по оси X
+    dy: 0,  // Скорость по оси Y
+    gravity: 0.5,  // Гравитация
+    jumpPower: -15,  // Мощность прыжка
+    grounded: false,  // Флаг, показывающий, находится ли персонаж на платформе
+    image: rightImage  // Начальное изображение для движения вправо
 };
 
 // Платформы
@@ -46,6 +39,10 @@ let keys = {
     right: false,
     up: false
 };
+
+// Начало игры
+const menu = document.getElementById('menu');
+const startButton = document.getElementById('startButton');
 
 startButton.addEventListener('click', startGame); // При нажатии на кнопку запускаем игру
 
@@ -70,6 +67,7 @@ document.addEventListener('keyup', (e) => {
     if (e.key === 'w') keys.up = false;
 });
 
+// Двигаем персонажа
 function movePlayer() {
     if (keys.left) {
         player.dx = -player.speed;
@@ -86,9 +84,7 @@ function movePlayer() {
 
     // Коллизия с платформами
     player.grounded = false;
-    for (let i = 0; i < platforms.length; i++) {
-        let p = platforms[i];
-
+    for (let p of platforms) {
         if (player.x + player.width > p.x && player.x < p.x + p.width &&
             player.y + player.height <= p.y + player.height && player.y + player.height + player.dy >= p.y) {
             player.y = p.y - player.height;
@@ -107,24 +103,26 @@ function movePlayer() {
     }
 }
 
+// Рисуем персонажа
 function drawPlayer() {
     ctx.drawImage(player.image, player.x, player.y, player.width, player.height);
 }
 
+// Рисуем платформы
 function drawPlatforms() {
     ctx.fillStyle = "#8B4513";  // Цвет платформ
-    for (let i = 0; i < platforms.length; i++) {
-        let p = platforms[i];
+    for (let p of platforms) {
         ctx.fillRect(p.x, p.y, p.width, p.height);
     }
 }
 
+// Игровой цикл
 function gameLoop() {
     if (!gameStarted) return; // Если игра не началась, не запускаем игровой цикл
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    movePlayer();
-    drawPlatforms();
-    drawPlayer();
-    requestAnimationFrame(gameLoop); // Вызываем функцию gameLoop для следующего кадра
+    ctx.clearRect(0, 0, canvas.width, canvas.height);  // Очистка экрана
+    movePlayer();   // Обновляем положение игрока
+    drawPlatforms(); // Рисуем платформы
+    drawPlayer();    // Рисуем персонажа
+    requestAnimationFrame(gameLoop); // Вызываем gameLoop для следующего кадра
 }

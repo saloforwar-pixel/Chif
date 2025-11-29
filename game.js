@@ -7,9 +7,11 @@ canvas.height = window.innerHeight;
 // Загрузка изображений для анимации
 let leftImage = new Image();
 let rightImage = new Image();
+let platformImage = new Image(); // Загружаем изображение платформы
 
 leftImage.src = 'assets/Чиф1.png';  // Путь к изображению для движения влево
 rightImage.src = 'assets/Чиф2.png'; // Путь к изображению для движения вправо
+platformImage.src = '/mnt/data/Земля1.png'; // Путь к изображению платформы
 
 // Персонаж
 let player = {
@@ -28,7 +30,7 @@ let player = {
 
 // Платформы
 let platforms = [
-    { x: 0, y: canvas.height - 100, width: canvas.width, height: 20 }, // Земля
+    { x: 0, y: canvas.height - 100, width: canvas.width, height: 20 }, // Земля (платформа)
     { x: 200, y: canvas.height - 200, width: 200, height: 20 },
     { x: 500, y: canvas.height - 300, width: 200, height: 20 }
 ];
@@ -39,10 +41,6 @@ let keys = {
     right: false,
     up: false
 };
-
-// Начало игры
-const menu = document.getElementById('menu');
-const startButton = document.getElementById('startButton');
 
 startButton.addEventListener('click', startGame); // При нажатии на кнопку запускаем игру
 
@@ -108,11 +106,10 @@ function drawPlayer() {
     ctx.drawImage(player.image, player.x, player.y, player.width, player.height);
 }
 
-// Рисуем платформы
+// Рисуем платформы с использованием изображения
 function drawPlatforms() {
-    ctx.fillStyle = "#8B4513";  // Цвет платформ
     for (let p of platforms) {
-        ctx.fillRect(p.x, p.y, p.width, p.height);
+        ctx.drawImage(platformImage, p.x, p.y, p.width, p.height); // Рисуем платформу с изображением
     }
 }
 

@@ -11,7 +11,14 @@ const startButton = document.getElementById('startButton');
 // Флаг для отслеживания начала игры
 let gameStarted = false;
 
-// Персонаж (пиксельный Чиф)
+// Загрузка изображений для анимации
+let leftImage = new Image();
+let rightImage = new Image();
+
+leftImage.src = 'assets/Чиф1.jpg';  // Путь к первому изображению (для движения влево)
+rightImage.src = 'assets/Чиф2.jpg'; // Путь ко второму изображению (для движения вправо)
+
+// Персонаж
 let player = {
     x: 100,
     y: canvas.height - 150,
@@ -23,19 +30,8 @@ let player = {
     gravity: 0.5,
     jumpPower: -15,
     grounded: false,
-    image: new Image()
+    image: rightImage  // Начальное изображение — для движения вправо
 };
-player.image.src = '/mnt/data/Чиф пиксель.jpg'; // Путь к пиксельному Чифу
-
-// Хлеб (замени на путь к изображению хлеба)
-let bread = {
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height - 100,
-    width: 30,
-    height: 30,
-    image: new Image()
-};
-bread.image.src = 'path_to_bread_image.png';
 
 let keys = {
     left: false,
@@ -67,9 +63,15 @@ document.addEventListener('keyup', (e) => {
 });
 
 function movePlayer() {
-    if (keys.left) player.dx = -player.speed;
-    if (keys.right) player.dx = player.speed;
-    if (!keys.left && !keys.right) player.dx = 0;
+    if (keys.left) {
+        player.dx = -player.speed;
+        player.image = leftImage;  // Если двигаемся влево, показываем левое изображение
+    } else if (keys.right) {
+        player.dx = player.speed;
+        player.image = rightImage; // Если двигаемся вправо, показываем правое изображение
+    } else {
+        player.dx = 0;  // Если стоим, не меняем изображение
+    }
 
     player.x += player.dx;
     player.y += player.dy;
@@ -91,27 +93,11 @@ function drawPlayer() {
     ctx.drawImage(player.image, player.x, player.y, player.width, player.height);
 }
 
-function drawBread() {
-    ctx.drawImage(bread.image, bread.x, bread.y, bread.width, bread.height);
-}
-
-function checkCollision() {
-    if (player.x < bread.x + bread.width &&
-        player.x + player.width > bread.x &&
-        player.y < bread.y + bread.height &&
-        player.y + player.height > bread.y) {
-        bread.x = Math.random() * canvas.width;
-        bread.y = Math.random() * canvas.height - 100;
-    }
-}
-
 function gameLoop() {
     if (!gameStarted) return; // Если игра не началась, не запускаем игровой цикл
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     movePlayer();
     drawPlayer();
-    drawBread();
-    checkCollision();
     requestAnimationFrame(gameLoop); // Вызываем функцию gameLoop для следующего кадра
 }

@@ -1,0 +1,131 @@
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let leftImage = new Image();
+let rightImage = new Image();
+
+// Путь к изображениям
+leftImage.src = 'assets/Чиф1.png';  // Путь к изображению для движения влево
+rightImage.src = 'assets/Чиф2.png'; // Путь к изображению для движения вправо
+
+// Логирование загрузки изображений
+leftImage.onload = () => console.log('Left Image Loaded');
+rightImage.onload = () => console.log('Right Image Loaded');
+
+// Персонаж
+let player = {
+    x: 100,
+    y: canvas.height - 150,
+    width: 40,
+    height: 40,
+    speed: 5,
+    dx: 0,
+    dy: 0,
+    gravity: 0.5,
+    jumpPower: -15,
+    grounded: false,
+    image: rightImage  // Начальное изображение для движения вправо
+};
+
+// Платформы
+let platforms = [
+    { x: 0, y: canvas.height - 100, width: canvas.width, height: 20 }, // Земля
+    { x: 200, y: canvas.height - 200, width: 200, height: 20 },
+    { x: 500, y: canvas.height - 300, width: 200, height: 20 }
+];
+
+// Управление
+let keys = {
+    left: false,
+    right: false,
+    up: false
+};
+
+startButton.addEventListener('click', startGame); // При нажатии на кнопку запускаем игру
+
+function startGame() {
+    gameStarted = true;
+    menu.style.display = 'none'; // Скрываем меню
+    gameLoop(); // Запускаем игровой цикл
+}
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'a') keys.left = true; // Управление через A
+    if (e.key === 'd') keys.right = true; // Управление через D
+    if (e.key === 'w' && player.grounded) { // Прыжок через W
+        keys.up = true;
+        player.dy = player.jumpPower;
+    }
+});
+
+document.addEventListener('keyup', (e) => {
+    if (e.key === 'a') keys.left = false;
+    if (e.key === 'd') keys.right = false;
+    if (e.key === 'w') keys.up = false;
+});
+
+function movePlayer() {
+    if (keys.left) {
+        player.dx = -player.speed;
+        player.image = leftImage; 
+    } else if (keys.right) {
+        player.dx = player.speed;
+        player.image = rightImage;
+    } else {
+        player.dx = 0;  
+    }
+
+    player.x += player.dx;
+    player.y += player.dy;
+
+    player.grounded = false;
+    for (let p of platforms) {
+        if (player.x + player.width > p.x && player.x < p.x + p.width &&
+            player.y + player.height <= p.y + player.height && player.y + player.height + player.dy >= p.y) {
+            player.y = p.y - player.height;
+            player.dy = 0;
+            player.grounded = true;
+        }
+    }
+
+    if (player.x < 0) player.x = 0;
+    if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+    if (!player.grounded) {
+        player.dy += player.gravity;
+    }
+}
+
+function drawPlayer() {
+    ctx.drawImage(player.image, player.x, player.y, player.width, player.height);
+}
+
+function drawPlatforms() {
+    ctx.fillStyle = "#8B4513";  
+    for (let p of platforms) {
+        ctx.fillRect(p.x, p.y, p.width, p.height);
+    }
+}
+
+function gameLoop() {
+    if (!gameStarted) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    movePlayer();
+    drawPlatforms();
+    drawPlayer();
+
+    // Логирование позиции игрока
+    console.log("Player Position:", player.x, player.y);
+    
+    // Логирование того, загружены ли изображения
+    if (player.image === leftImage) {
+        console.log("Moving Left");
+    } else if (player.image === rightImage) {
+        console.log("Moving Right");
+    }
+
+    requestAnimationFrame(gameLoop);
+}

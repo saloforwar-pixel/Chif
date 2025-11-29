@@ -11,32 +11,36 @@ const startButton = document.getElementById('startButton');
 // Флаг для отслеживания начала игры
 let gameStarted = false;
 
-// Персонаж (пиксельный Чиф)
+// Загрузка изображений для анимации (обновлено на .png)
+let leftImage = new Image();
+let rightImage = new Image();
+
+leftImage.src = 'assets/Чиф1.png';  // Путь к первому изображению (для движения влево)
+rightImage.src = 'assets/Чиф2.png'; // Путь ко второму изображению (для движения вправо)
+
+// Персонаж (уменьшаем его размеры)
 let player = {
     x: 100,
     y: canvas.height - 150,
-    width: 50,
-    height: 50,
+    width: 40, // Уменьшаем персонажа
+    height: 40, // Уменьшаем персонажа
     speed: 5,
     dx: 0,
     dy: 0,
     gravity: 0.5,
     jumpPower: -15,
     grounded: false,
-    image: new Image()
+    image: rightImage  // Начальное изображение — для движения вправо
 };
-player.image.src = '/mnt/data/Чиф пиксель.jpg'; // Путь к пиксельному Чифу
 
-// Хлеб (замени на путь к изображению хлеба)
-let bread = {
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height - 100,
-    width: 30,
-    height: 30,
-    image: new Image()
-};
-bread.image.src = 'path_to_bread_image.png';
+// Платформы
+let platforms = [
+    { x: 0, y: canvas.height - 100, width: canvas.width, height: 20 }, // Земля
+    { x: 200, y: canvas.height - 200, width: 200, height: 20 },
+    { x: 500, y: canvas.height - 300, width: 200, height: 20 }
+];
 
+// Управление
 let keys = {
     left: false,
     right: false,
@@ -52,38 +56,54 @@ function startGame() {
 }
 
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowLeft') keys.left = true;
-    if (e.key === 'ArrowRight') keys.right = true;
-    if (e.key === ' ' && player.grounded) {
+    if (e.key === 'a') keys.left = true; // Управление через A
+    if (e.key === 'd') keys.right = true; // Управление через D
+    if (e.key === 'w' && player.grounded) { // Прыжок через W
         keys.up = true;
         player.dy = player.jumpPower;
     }
 });
 
 document.addEventListener('keyup', (e) => {
-    if (e.key === 'ArrowLeft') keys.left = false;
-    if (e.key === 'ArrowRight') keys.right = false;
-    if (e.key === ' ') keys.up = false;
+    if (e.key === 'a') keys.left = false;
+    if (e.key === 'd') keys.right = false;
+    if (e.key === 'w') keys.up = false;
 });
 
 function movePlayer() {
-    if (keys.left) player.dx = -player.speed;
-    if (keys.right) player.dx = player.speed;
-    if (!keys.left && !keys.right) player.dx = 0;
+    if (keys.left) {
+        player.dx = -player.speed;
+        player.image = leftImage;  // Если двигаемся влево, показываем левое изображение
+    } else if (keys.right) {
+        player.dx = player.speed;
+        player.image = rightImage; // Если двигаемся вправо, показываем правое изображение
+    } else {
+        player.dx = 0;  // Если стоим, не меняем изображение
+    }
 
     player.x += player.dx;
     player.y += player.dy;
 
+    // Коллизия с платформами
+    player.grounded = false;
+    for (let i = 0; i < platforms.length; i++) {
+        let p = platforms[i];
+
+        if (player.x + player.width > p.x && player.x < p.x + p.width &&
+            player.y + player.height <= p.y + player.height && player.y + player.height + player.dy >= p.y) {
+            player.y = p.y - player.height;
+            player.dy = 0;
+            player.grounded = true;
+        }
+    }
+
+    // Если персонаж выходит за границы экрана
     if (player.x < 0) player.x = 0;
     if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
 
-    if (player.y + player.height > canvas.height - 50) {
-        player.y = canvas.height - 50 - player.height;
-        player.dy = 0;
-        player.grounded = true;
-    } else {
+    // Если игрок не на платформе, применять гравитацию
+    if (!player.grounded) {
         player.dy += player.gravity;
-        player.grounded = false;
     }
 }
 
@@ -91,17 +111,11 @@ function drawPlayer() {
     ctx.drawImage(player.image, player.x, player.y, player.width, player.height);
 }
 
-function drawBread() {
-    ctx.drawImage(bread.image, bread.x, bread.y, bread.width, bread.height);
-}
-
-function checkCollision() {
-    if (player.x < bread.x + bread.width &&
-        player.x + player.width > bread.x &&
-        player.y < bread.y + bread.height &&
-        player.y + player.height > bread.y) {
-        bread.x = Math.random() * canvas.width;
-        bread.y = Math.random() * canvas.height - 100;
+function drawPlatforms() {
+    ctx.fillStyle = "#8B4513";  // Цвет платформ
+    for (let i = 0; i < platforms.length; i++) {
+        let p = platforms[i];
+        ctx.fillRect(p.x, p.y, p.width, p.height);
     }
 }
 
@@ -110,8 +124,7 @@ function gameLoop() {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     movePlayer();
+    drawPlatforms();
     drawPlayer();
-    drawBread();
-    checkCollision();
     requestAnimationFrame(gameLoop); // Вызываем функцию gameLoop для следующего кадра
 }
